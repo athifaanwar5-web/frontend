@@ -43,4 +43,6 @@ export const api = {
         method: 'PUT',
         body: JSON.stringify(data)
     }),
+    delete: (endpoint: string) => fetcher(endpoint, { method: 'DELETE' }),
 };
+

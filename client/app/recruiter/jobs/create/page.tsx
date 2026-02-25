@@ -16,22 +16,24 @@ export default function CreateJob() {
         if (!formData.title) return alert('Please enter a Job Title first');
         setIsGenerating(true);
         try {
-            // Create a specific endpoint for this or reuse a logic
-            // For now, let's mock the AI response or call backend if implemented
-            const res = await api.post('/jobs/', { ...formData, description: 'AI is generating...' }); // Dummy save to trigger AI? 
-            // Actually let's add an endpoint for generating JD in backend
-            // But for this demo, I will simulate it 
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            setFormData({
-                ...formData,
-                description: `We are looking for a talented ${formData.title} to join our dynamic team. \n\nKey Responsibilities:\n- Develop high-quality code\n- Collaborate with cross-functional teams\n- Participate in code reviews\n\nRequirements:\n- Strong problem-solving skills\n- Experience with modern frameworks\n- Excellent communication skills`
-            });
+            const res = await api.post('/recruiter/generate-jd/', { title: formData.title });
+            const data = await res.json();
+            if (res.ok) {
+                setFormData({
+                    ...formData,
+                    description: data.description
+                });
+            } else {
+                alert(data.error || 'Failed to generate JD');
+            }
         } catch (error) {
             console.error(error);
+            alert('Failed to connect to AI service');
         } finally {
             setIsGenerating(false);
         }
     };
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

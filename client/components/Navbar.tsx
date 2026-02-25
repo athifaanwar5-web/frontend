@@ -6,19 +6,29 @@ import { User, LogOut } from 'lucide-react';
 
 export default function Navbar() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [role, setRole] = useState<string | null>(null);
     const router = useRouter();
 
     useEffect(() => {
         const checkLogin = () => {
             const token = localStorage.getItem('access_token');
             setIsLoggedIn(!!token);
+            setRole(localStorage.getItem('user_role'));
         };
 
         checkLogin();
-        // Listen for storage changes (for multiple tabs)
+        // Listen for storage changes
         window.addEventListener('storage', checkLogin);
-        return () => window.removeEventListener('storage', checkLogin);
+
+        // Custom event for same-tab login updates
+        window.addEventListener('login-update', checkLogin);
+
+        return () => {
+            window.removeEventListener('storage', checkLogin);
+            window.removeEventListener('login-update', checkLogin);
+        };
     }, []);
+
 
     const handleLogout = () => {
         localStorage.removeItem('access_token');
@@ -54,9 +64,10 @@ export default function Navbar() {
 
                 {isLoggedIn ? (
                     <>
-                        <Link href="/profile" style={{ color: 'var(--foreground)', textDecoration: 'none', fontSize: '14px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <User size={16} /> Profile
+                        <Link href={role === 'hr' ? '/recruiter' : '/profile'} style={{ color: 'var(--foreground)', textDecoration: 'none', fontSize: '14px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <User size={16} /> {role === 'hr' ? 'Dashboard' : 'Profile'}
                         </Link>
+
                         <button
                             onClick={handleLogout}
                             style={{

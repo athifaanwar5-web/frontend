@@ -1,5 +1,6 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
 import Navbar from '@/components/Navbar';
 import { api } from '@/services/api';
 import { useRouter } from 'next/navigation';
@@ -7,10 +8,15 @@ import { motion } from 'framer-motion';
 import { UserPlus, Mail, Lock, User as UserIcon, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 
 export default function Register() {
-    const [formData, setFormData] = useState({ username: '', email: '', password: '' });
+    const [formData, setFormData] = useState({ username: '', email: '', password: '', role: 'job_seeker' });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [mounted, setMounted] = useState(false);
     const router = useRouter();
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -24,9 +30,15 @@ export default function Register() {
                 // Auto-login after registration
                 localStorage.setItem('access_token', data.access);
                 localStorage.setItem('refresh_token', data.refresh);
-                router.push('/profile');
+                localStorage.setItem('user_role', data.role);
+
+                if (data.role === 'hr') {
+                    router.push('/recruiter');
+                } else {
+                    router.push('/profile');
+                }
             } else {
-                // Handle validation errors (e.g., username already taken)
+                // Handle validation errors
                 const errorMsg = data.username ? `Username: ${data.username[0]}` :
                     data.email ? `Email: ${data.email[0]}` :
                         data.password ? `Password: ${data.password[0]}` :
@@ -40,6 +52,8 @@ export default function Register() {
             setLoading(false);
         }
     };
+
+    if (!mounted) return null;
 
     return (
         <>
@@ -97,6 +111,41 @@ export default function Register() {
                     )}
 
                     <form style={{ display: 'flex', flexDirection: 'column', gap: '20px' }} onSubmit={handleSubmit}>
+                        <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                            <button
+                                type="button"
+                                onClick={() => setFormData({ ...formData, role: 'job_seeker' })}
+                                style={{
+                                    flex: 1,
+                                    padding: '12px',
+                                    borderRadius: '12px',
+                                    border: '1px solid var(--border)',
+                                    background: formData.role === 'job_seeker' ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
+                                    color: formData.role === 'job_seeker' ? 'var(--primary)' : 'rgba(255,255,255,0.4)',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s ease'
+                                }}
+                            >
+                                Job Seeker
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setFormData({ ...formData, role: 'hr' })}
+                                style={{
+                                    flex: 1,
+                                    padding: '12px',
+                                    borderRadius: '12px',
+                                    border: '1px solid var(--border)',
+                                    background: formData.role === 'hr' ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
+                                    color: formData.role === 'hr' ? 'var(--primary)' : 'rgba(255,255,255,0.4)',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s ease'
+                                }}
+                            >
+                                HR / Recruiter
+                            </button>
+                        </div>
+
                         <div style={{ position: 'relative' }}>
                             <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.2)' }}>
                                 <UserIcon size={18} />
@@ -138,6 +187,7 @@ export default function Register() {
                                 required
                             />
                         </div>
+
 
                         <button type="submit" className="btn-primary" style={{ height: '52px', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }} disabled={loading}>
                             {loading ? <Loader2 className="animate-spin" size={20} /> : <>Register <ArrowRight size={18} /></>}

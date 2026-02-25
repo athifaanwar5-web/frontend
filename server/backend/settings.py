@@ -151,3 +151,8 @@ CORS_ALLOW_ALL_ORIGINS = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+
+# Email Settings
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'hiring@aivault.com'
+

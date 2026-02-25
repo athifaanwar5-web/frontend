@@ -1,6 +1,26 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+class UserProfile(models.Model):
+    ROLES = [
+        ('job_seeker', 'Job Seeker'),
+        ('hr', 'HR/Recruiter'),
+    ]
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='user_profile')
+    role = models.CharField(max_length=20, choices=ROLES, default='job_seeker')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.role}"
+
+class HRProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='hr_profile')
+    company_name = models.CharField(max_length=255, blank=True, null=True)
+    industry = models.CharField(max_length=100, blank=True, null=True)
+    logo = models.ImageField(upload_to='company_logos/', blank=True, null=True)
+
+    def __str__(self):
+        return self.company_name or self.user.username
+
 class Skill(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
@@ -9,6 +29,7 @@ class Skill(models.Model):
 
 class Job(models.Model):
     title = models.CharField(max_length=255)
+    recruiter = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posted_jobs', null=True, blank=True)
     company = models.CharField(max_length=255, default="Local Corp")
     description = models.TextField()
     required_skills = models.ManyToManyField(Skill, related_name='jobs')
@@ -64,3 +85,4 @@ class MatchScore(models.Model):
 
     def __str__(self):
         return f"Score: {self.score} for {self.application}"
+
