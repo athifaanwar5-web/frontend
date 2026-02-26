@@ -226,7 +226,7 @@ export default function JobMarket() {
                                         color: 'var(--primary)',
                                         background: 'rgba(99, 102, 241, 0.05)'
                                     }}>
-                                        {matchResult.match_score.score}%
+                                        {Math.round(matchResult.match_score.score)}%
                                     </div>
                                     <h2 style={{ fontSize: '28px', marginBottom: '8px' }}>Compatibility Analysis</h2>
                                     <p style={{ color: 'rgba(255,255,255,0.4)' }}>How well you align with this role</p>

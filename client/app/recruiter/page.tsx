@@ -74,18 +74,27 @@ export default function RecruiterDashboard() {
     const handleProfileSave = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
+            let res;
             if (logoFile) {
                 const formData = new FormData();
                 formData.append('logo', logoFile);
                 formData.append('company_name', profile.company_name || '');
                 formData.append('industry', profile.industry || '');
-                await api.upload('/profile/', formData);
+                res = await api.upload('/profile/', formData, 'PUT');
             } else {
-                await api.put('/profile/', profile);
+                res = await api.put('/profile/', {
+                    company_name: profile.company_name || '',
+                    industry: profile.industry || ''
+                });
             }
-            setIsEditingProfile(false);
-            alert('Profile updated!');
-            fetchProfile();
+            if (res.ok) {
+                setIsEditingProfile(false);
+                alert('Profile updated!');
+                fetchProfile();
+            } else {
+                const err = await res.json();
+                alert('Failed to update profile: ' + JSON.stringify(err));
+            }
         } catch (error) {
             console.error(error);
         }
@@ -132,7 +141,7 @@ export default function RecruiterDashboard() {
                 <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '48px' }}>
                     <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
-                            {profile?.logo && <img src={`http://localhost:8000${profile.logo}`} alt="Logo" style={{ width: '48px', height: '48px', borderRadius: '12px' }} />}
+                            {profile?.logo && <img src={profile.logo.startsWith('http') ? profile.logo : `http://localhost:8000${profile.logo}`} alt="Logo" style={{ width: '48px', height: '48px', borderRadius: '12px' }} />}
                             <h1 style={{ fontSize: '32px' }}>Recruiter <span style={{ color: 'var(--primary)' }}>Insight</span></h1>
                         </div>
                         <p style={{ color: 'rgba(255,255,255,0.5)' }}>Manage your workspace: {profile?.company_name || 'Set Company Name'}</p>
@@ -239,7 +248,7 @@ export default function RecruiterDashboard() {
                                                 </Link>
                                             </td>
                                             <td style={{ padding: '16px 0', fontSize: '14px', color: 'rgba(255,255,255,0.6)' }}>{app.job_details.title}</td>
-                                            <td style={{ padding: '16px 0', fontSize: '14px', fontWeight: 'bold', color: 'var(--primary)' }}>{app.match_score?.score || 0}%</td>
+                                            <td style={{ padding: '16px 0', fontSize: '14px', fontWeight: 'bold', color: 'var(--primary)' }}>{Math.round(app.match_score?.score || 0)}%</td>
                                             <td style={{ padding: '16px 0', display: 'flex', gap: '8px' }}>
                                                 {app.status === 'Applied' ? (
                                                     <>

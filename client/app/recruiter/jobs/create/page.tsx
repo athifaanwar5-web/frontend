@@ -8,9 +8,24 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function CreateJob() {
-    const [formData, setFormData] = useState({ title: '', description: '', company: 'Local Corp' });
+    const [formData, setFormData] = useState({ title: '', description: '', company: 'Local Corp', required_skill_names: [] as string[] });
     const [isGenerating, setIsGenerating] = useState(false);
+    const [newSkill, setNewSkill] = useState('');
     const router = useRouter();
+
+    const addSkill = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (newSkill.trim() && !formData.required_skill_names.includes(newSkill.trim().toLowerCase())) {
+                setFormData({ ...formData, required_skill_names: [...formData.required_skill_names, newSkill.trim().toLowerCase()] });
+                setNewSkill('');
+            }
+        }
+    };
+
+    const removeSkill = (skillToRemove: string) => {
+        setFormData({ ...formData, required_skill_names: formData.required_skill_names.filter(s => s !== skillToRemove) });
+    };
 
     const handleGenerateAI = async () => {
         if (!formData.title) return alert('Please enter a Job Title first');
@@ -100,6 +115,35 @@ export default function CreateJob() {
                                 onChange={e => setFormData({ ...formData, description: e.target.value })}
                                 required
                             />
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <label style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)' }}>Required Skills (Press Enter to add)</label>
+                            <input
+                                placeholder="e.g. React"
+                                value={newSkill}
+                                onChange={e => setNewSkill(e.target.value)}
+                                onKeyDown={addSkill}
+                            />
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
+                                {formData.required_skill_names.map((skill, index) => (
+                                    <span key={index} style={{
+                                        background: 'rgba(16, 185, 129, 0.1)',
+                                        color: 'var(--secondary)',
+                                        padding: '6px 14px',
+                                        borderRadius: '12px',
+                                        fontSize: '12px',
+                                        border: '1px solid rgba(16, 185, 129, 0.2)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        fontWeight: '600'
+                                    }}>
+                                        {skill}
+                                        <span style={{ cursor: 'pointer', color: 'rgba(16, 185, 129, 0.5)' }} onClick={() => removeSkill(skill)}>×</span>
+                                    </span>
+                                ))}
+                            </div>
                         </div>
 
                         <button type="submit" className="btn-primary" style={{ padding: '16px', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>

@@ -307,7 +307,10 @@ class RecruiterApplicationsListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return JobApplication.objects.filter(job__recruiter=self.request.user).order_by('-applied_at')
+        role = getattr(self.request.user.user_profile, 'role', 'job_seeker')
+        if role == 'hr':
+            return JobApplication.objects.filter(job__recruiter=self.request.user).order_by('-applied_at')
+        return JobApplication.objects.filter(candidate__user=self.request.user).order_by('-applied_at')
 
 class UpdateApplicationStatusView(views.APIView):
 

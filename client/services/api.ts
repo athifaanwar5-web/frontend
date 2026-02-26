@@ -29,10 +29,10 @@ export const api = {
         method: 'POST',
         body: JSON.stringify(data)
     }),
-    upload: (endpoint: string, formData: FormData) => {
+    upload: (endpoint: string, formData: FormData, method: string = 'POST') => {
         const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
         return fetch(`${API_URL}${endpoint}`, {
-            method: 'POST',
+            method: method,
             body: formData,
             headers: {
                 ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
