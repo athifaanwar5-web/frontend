@@ -139,28 +139,34 @@ export default function CandidateDeepDive() {
                                 fontWeight: 'bold',
                                 color: 'var(--secondary)'
                             }}>
-                                {match.score}%
+                                {Math.round(match.score)}%
                             </div>
                             <h2 style={{ fontSize: '24px', marginBottom: '8px' }}>{candidate.full_name || 'Anonymous Candidate'}</h2>
                             <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '14px', marginBottom: '32px' }}>{application.job_details.title}</p>
 
                             <div style={{ display: 'flex', gap: '12px' }}>
-                                <button
-                                    onClick={() => handleStatusUpdate('Shortlisted')}
-                                    className="btn-primary"
-                                    style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-                                    disabled={application.status === 'Shortlisted'}
-                                >
-                                    <CheckCircle size={18} /> Shortlist
-                                </button>
-                                <button
-                                    onClick={() => handleStatusUpdate('Rejected')}
-                                    className="btn-outline"
-                                    style={{ flex: 1, color: '#f43f5e', borderColor: '#f43f5e' }}
-                                    disabled={application.status === 'Rejected'}
-                                >
-                                    <XCircle size={18} /> Reject
-                                </button>
+                                {application.status === 'Applied' ? (
+                                    <>
+                                        <button
+                                            onClick={() => handleStatusUpdate('Shortlisted')}
+                                            className="btn-primary"
+                                            style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                                        >
+                                            <CheckCircle size={18} /> Shortlist
+                                        </button>
+                                        <button
+                                            onClick={() => handleStatusUpdate('Rejected')}
+                                            className="btn-outline"
+                                            style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#f43f5e', borderColor: '#f43f5e' }}
+                                        >
+                                            <XCircle size={18} /> Reject
+                                        </button>
+                                    </>
+                                ) : (
+                                    <div style={{ flex: 1, padding: '12px', textAlign: 'center', borderRadius: '8px', fontWeight: 'bold', border: `1px solid ${application.status === 'Shortlisted' ? '#10b981' : '#f43f5e'}`, color: application.status === 'Shortlisted' ? '#10b981' : '#f43f5e', background: application.status === 'Shortlisted' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(244, 63, 94, 0.1)' }}>
+                                        {application.status === 'Shortlisted' ? <><CheckCircle size={18} style={{ verticalAlign: 'middle', marginRight: '8px' }} /> Shortlisted</> : <><XCircle size={18} style={{ verticalAlign: 'middle', marginRight: '8px' }} /> Rejected</>}
+                                    </div>
+                                )}
                             </div>
                         </motion.div>
 

@@ -21,7 +21,10 @@ export default function Profile() {
         try {
             const res = await api.get('/profile/');
             if (res.ok) {
-                setProfile(await res.json());
+                const data = await res.json();
+                if (!data.full_name && data.user?.username) data.full_name = data.user.username;
+                if (!data.email && data.user?.email) data.email = data.user.email;
+                setProfile(data);
             }
         } catch (error) {
             console.error(error);
